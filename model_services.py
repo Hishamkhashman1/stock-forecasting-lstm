@@ -10,6 +10,7 @@ from keras.regularizers import l2
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 from sklearn.preprocessing import StandardScaler
 
+from data_services import calculate_technical_indicators
 
 def build_lstm_model(
     input_shape: Tuple[int, int],
@@ -110,11 +111,21 @@ def forecast_trend(
         "Parabolic_SAR",
         "Volume",
     ]
-    stock_data = stock_data[features]
-    exchange_data = exchange_data[["Adj Close"]].rename(columns={"Adj Close": "Exchange_Adj_Close"})
+    stock_data = calculate_technical_indicators(stock_data).dropna()
+    exchange_data = calculate_technical_indicators(exchange_data).dropna()
 
-    combined_df = pd.concat([stock_data, exchange_data], axis=1)
+    stock_features = stock_data[features]
+    exchange_features = exchange_data[["Adj Close"]].rename(
+        columns={"Adj Close": "Exchange_Adj_Close"}
+    )
+
+    combined_df = pd.concat([stock_features, exchange_features], axis=1).dropna()
     column_count = combined_df.shape[1]
+
+    if len(combined_df) < sequence_length:
+        raise ValueError(
+            "Not enough data to forecast. Try increasing the date range or reducing the sequence length."
+        )
 
     last_sequence = combined_df.values[-sequence_length:]
     current_sequence = last_sequence.copy()

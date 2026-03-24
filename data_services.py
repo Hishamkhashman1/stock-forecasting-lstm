@@ -9,7 +9,26 @@ from newsapi import NewsApiClient
 from sklearn.preprocessing import StandardScaler
 
 
-DEFAULT_NEWS_API_KEY = os.environ.get("NEWS_API_KEY", "ab57665b93dc4be5be77fdf1154cf384")
+def _load_dotenv(path: str = ".env") -> None:
+    if not os.path.exists(path):
+        return
+    with open(path, "r", encoding="utf-8") as handle:
+        for raw_line in handle:
+            line = raw_line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            key, value = line.split("=", 1)
+            key = key.strip()
+            value = value.strip().strip('"').strip("'")
+            if key:
+                os.environ[key] = value
+
+
+_load_dotenv()
+
+DEFAULT_NEWS_API_KEY = os.environ.get("NEWS_API_KEY")
+if not DEFAULT_NEWS_API_KEY:
+    raise ValueError("NEWS_API_KEY is missing. Add it to .env or export it in your shell.")
 newsapi = NewsApiClient(api_key=DEFAULT_NEWS_API_KEY)
 
 
@@ -145,4 +164,3 @@ def preprocess_data(
     X, y = np.array(X), np.array(y)
     print(f"Preprocessed data size: {X.shape[0]} samples")
     return X, y, feature_scaler, target_scaler
-

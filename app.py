@@ -24,11 +24,13 @@ def run_forecast(
     training_attempts: int = 5,
     min_test_split_samples: int = 5,
 ) -> Dict[str, Any]:
-    data = fetch_data(ticker)
+    data = fetch_data(ticker, months=12)
     full_name, current_price, description, industry, exchange = fetch_company_info(ticker)
-    exchange_data = fetch_exchange_data(exchange_ticker)
+    exchange_data = fetch_exchange_data(exchange_ticker, months=12)
 
-    X, y, feature_scaler, target_scaler = preprocess_data(data, exchange_data)
+    X, y, feature_scaler, target_scaler = preprocess_data(
+        data, exchange_data, sequence_length=60
+    )
     if len(X) == 0:
         raise ValueError(
             "Not enough data to create sequences. Try increasing the date range or reducing the sequence length."
