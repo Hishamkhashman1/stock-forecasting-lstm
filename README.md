@@ -1,5 +1,5 @@
 # Stock Forecasting with LSTM
-
+![ML App Demo](portfolio_collage.png)
 An end-to-end stock price forecasting application that uses technical indicators and an LSTM neural network to predict short-term market trends.
 
 The project fetches historical market data, engineers financial indicators, trains a time-series model, and generates automated reports with forecasts, performance metrics, and related news.
